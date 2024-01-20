@@ -1,4 +1,4 @@
-// weatherData.js
+
 const constants  = require('../config.js');
 const request = require('request');
 
@@ -6,7 +6,6 @@ const weatherData = (address, callback) => {
     let endereco = address.trim()
     const url = constants.openWeather.BASE_URL + encodeURIComponent(endereco) + '&appid=' + constants.openWeather.SECRET_KEY + '&lang=pt_br&units=metric';
     request({ url, json: true }, (error, { body }) => {
-        console.log(body);
         if (error) {
             callback('Não conseguiu capturar os dados da OpenWeather API', undefined)
         } else {

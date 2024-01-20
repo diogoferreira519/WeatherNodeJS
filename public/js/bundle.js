@@ -1,4 +1,17 @@
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const constants = {
+    openWeather :{
+        BASE_URL : 'https://api.openweathermap.org/data/2.5/weather?q=',
+        SECRET_KEY:'73e2858af92e61edb6718af650df1384',
+        getSearch : function(city){
+            return `https://api.openweathermap.org/data/2.5/find?q=${city}&appid=${this.SECRET_KEY}`
+        }
+    }
+}
+module.exports = constants;
+},{}],2:[function(require,module,exports){
 let fetchWeather = '/weather';
+const constants = require('../../config');
 const apiIp = 'http://ip-api.com/json/';
 let search = document.querySelector('#search');
 let cityInput = document.querySelector('#city-input');
@@ -60,9 +73,8 @@ function pesquisa() {
         container.classList.add('blur-effect');
     }
 }
-
 function buscarSugestoes(pesquisa) {
-    
+    let urlSearch = constants.openWeather.getSearch(pesquisa)
     return fetch(urlSearch)
         .then(response => {
             if (!response.ok) {
@@ -80,9 +92,13 @@ function buscarSugestoes(pesquisa) {
         })
 }
 async function mostrarSugestoes(nomesCidades) {
-    const listaPronta = nomesCidades.map(cidades => `<li onclick='itemLista(event)'>${cidades}</li>`).join('');
+    const listaPronta = nomesCidades.map(cidades => `<li>${cidades}</li>`).join('');
     sugestoesContainer.innerHTML = `<ul>${listaPronta}</ul>`
-    sugestoesContainer.style.display = 'block';
+    sugestoesContainer.style.display = 'block'
+    let itens = document.querySelectorAll('li');
+    itens.forEach(item => {
+        item.addEventListener('click', itemLista);
+    });
 }
 function consultaCidadeAtual() {
     fetch(apiIp).then(response => {
@@ -102,17 +118,22 @@ function consultaCidadeAtual() {
         container.classList.remove('blur-effect');
     });
 }
+function itemLista(e) {
+    cityInput.value = e.target.textContent;
+    let cidadeSelecionada = cityInput.value;
+    sugestoesContainer.style.display = 'none';
+    consultaCidade(cidadeSelecionada);
+    loading.style.display = 'block';
+    container.classList.add('blur-effect');
+}
 function consultaCidade(city) {
     let apiWeather = fetchWeather + '/?address=' + city;
-    console.log(apiWeather)
      fetch(apiWeather)
         .then(response => {
-            console.log(response)
             return response.json()
         })
         .then(data => {
             if (!data) {
-                console.log(data)
                 console.error('Erro na response da API weather');
                 cityInput.value = '';
                 loading.style.display = 'none';
@@ -133,16 +154,8 @@ function consultaCidade(city) {
             alert('Erro na solicitação:' + error.message)
         });
 }
-function itemLista(e) {
-    cityInput.value = e.target.textContent;
-    let cidadeSelecionada = cityInput.value;
-    sugestoesContainer.style.display = 'none';
-    consultaCidade(cidadeSelecionada);
-    loading.style.display = 'block';
-    container.classList.add('blur-effect');
-}
+
 function preencheCard(dados) {
-    console.log(dados)
     cityName.innerHTML = dados.cityName;
     temperature.innerHTML = dados.temperature;
     umidade.innerHTML = dados.umidade;
@@ -201,3 +214,5 @@ function preencheCard(dados) {
     sugestoesContainer.style.display = 'none';
     cityInput.value = '';
 }
+
+},{"../../config":1}]},{},[2]);
